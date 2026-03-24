@@ -420,7 +420,7 @@ kubectl get crd ec2nodeclasses.karpenter.k8s.aws \
   -o jsonpath='{.spec.versions[*].name}'
 ```
 
-Expected output: `v1beta1`. If it says `v1`, your CRD version doesn't match the chart version.
+**Expected output: `v1beta1`. If it says `v1`, your CRD version doesn't match the chart version.**
 
 ---
 
@@ -523,6 +523,63 @@ kubectl get ec2nodeclass
 ```
 
 ---
+
+If its vesrion is v1
+cat <<EOF | envsubst | kubectl apply -f -
+apiVersion: karpenter.sh/v1
+kind: NodePool
+metadata:
+  name: default
+spec:
+  template:
+    spec:
+      requirements:
+        - key: kubernetes.io/arch
+          operator: In
+          values: ["amd64"]
+        - key: kubernetes.io/os
+          operator: In
+          values: ["linux"]
+        - key: karpenter.sh/capacity-type
+          operator: In
+          values: ["on-demand"]
+        - key: karpenter.k8s.aws/instance-category
+          operator: In
+          values: ["c", "m", "r", "t"]
+        - key: karpenter.k8s.aws/instance-generation
+          operator: Gt
+          values: ["2"]
+      nodeClassRef:
+        group: karpenter.k8s.aws
+        kind: EC2NodeClass
+        name: default
+      expireAfter: 720h # 30 * 24h = 720h
+  limits:
+    cpu: 1000
+    nodes: "2"
+  disruption:
+    consolidationPolicy: WhenEmptyOrUnderutilized
+    consolidateAfter: 1m
+---
+apiVersion: karpenter.k8s.aws/v1
+kind: EC2NodeClass
+metadata:
+  name: default
+spec:
+  instanceProfile: "KarpenterNodeInstanceProfile-smarte_prod_eks" # replace with your cluster name
+  amiSelectorTerms:
+    - alias: "al2023@${ALIAS_VERSION}"
+  subnetSelectorTerms:
+    - tags:
+        karpenter.sh/discovery: "${CLUSTER_NAME}" # replace with your cluster name
+  securityGroupSelectorTerms:
+    - tags:
+        karpenter.sh/discovery: "${CLUSTER_NAME}" # replace with your cluster name
+EOF
+
+
+
+
 
 ## Step 15 — Test Autoscaling
 
