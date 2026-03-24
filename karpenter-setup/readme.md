@@ -650,3 +650,25 @@ kubectl scale deployment inflate --replicas 0
 Karpenter should deprovision the node within 1-2 minutes via the `WhenUnderutilized` consolidation policy.
 
 ---
+###################  create access entry #################
+
+aws eks create-access-entry \
+--cluster-name smarte_prod_eks \
+--principal-arn arn:aws:iam::554435745104:role/KarpenterNodeRole-smarte_prod_eks \
+--type EC2_LINUX \
+--region us-east-2
+{
+    "accessEntry": {
+        "clusterName": "smarte_prod_eks",
+        "principalArn": "arn:aws:iam::554435745104:role/KarpenterNodeRole-smarte_prod_eks",
+        "kubernetesGroups": [
+            "system:nodes"
+        ],
+        "accessEntryArn": "arn:aws:eks:us-east-2:554435745104:access-entry/smarte_prod_eks/role/554435745104/KarpenterNodeRole-smarte_prod_eks/10ce8d99-fd98-3baf-656a-f0a9fa6dfa72",
+        "createdAt": "2026-03-23T14:58:04.795000+00:00",
+        "modifiedAt": "2026-03-23T14:58:04.795000+00:00",
+        "tags": {},
+        "username": "system:node:{{EC2PrivateDNSName}}",
+        "type": "EC2_LINUX"
+    }
+}
