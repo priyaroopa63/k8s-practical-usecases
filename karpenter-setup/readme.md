@@ -424,6 +424,8 @@ Expected output: `v1beta1`. If it says `v1`, your CRD version doesn't match the 
 
 ---
 
+based on this only yml files needs to create.
+
 ## Step 13 — Create EC2NodeClass
 
 The EC2NodeClass defines AWS-specific settings: which subnets to use, which security groups, which AMI family, and which instance profile.
